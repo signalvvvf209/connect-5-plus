@@ -11,6 +11,9 @@ public class Game {
 
     public Game() {
         this.board = new Board(9);
+    }
+
+    public void begin(){
         progress();
     }
 
@@ -23,12 +26,7 @@ public class Game {
                     break;
                 }
 
-                int direction = selectDirection();
-                if (direction == -1) {
-                    break;
-                }
-
-            if (!tryMove(x, direction)) {
+            if (!tryMove(x)) {
                 System.out.println("そこには置けません");
                 continue;
             }
@@ -43,6 +41,8 @@ public class Game {
         System.out.println(board);
         if (winner != 0) {
             System.out.println("Player" + winner + "の勝ち！");
+        } else {
+            System.out.println("ゲームを終了しました。");
         }
     }
 
@@ -54,30 +54,31 @@ public class Game {
     }
 
     protected int getPlayer() {
-        return this.player;
+        return player;
     }
 
     protected int getWinner() {
-        return this.winner;
+        return winner;
     }
 
     protected Board getBoard() {
-        return this.board;
+        return board;
     }
 
     protected int selectPosition() {
         Scanner scanner = ConsoleEncoding.newScanner();
-        System.out.println("Player" + player + "の番です");
+        System.out.println("Player" + player + " (" + Token.typeToString(player) + ") の番です");
         while (true) {
-            System.out.println("0 ~ " + board.boardSize + " で置く場所を指定してください。(eで終了)");
+            System.out.println("0 ~ " + (board.boardSize - 1) + " で置く場所を指定してください (eで終了)");
             String str = scanner.next();
             if (str.equals("e")) {
+
                 return -1;
             }
             try {
-                int position = Integer.parseInt(str);
-                if (0 <= position && position < board.boardSize){
-                    return position;
+                int x = Integer.parseInt(str);
+                if (0 <= x && x < board.boardSize){
+                    return x;
                 }
                 System.out.println("範囲内の値を入力してください");
             } catch (NumberFormatException e) {
@@ -86,32 +87,12 @@ public class Game {
         }
     }
 
-    protected int selectDirection() {
-        Scanner scanner = ConsoleEncoding.newScanner();
-        while (true) {
-            System.out.println("h (横) または v (縦) を入力してください");
-            String str = scanner.next();
-            switch (str) {
-                case "e" -> {
-                    return -1;
-                }
-                case "h" -> {
-                    return 0;
-                }
-                case "v" -> {
-                    return 1;
-                }
-            }
-            System.out.println("入力が正しくありません");
-        }
-    }
-
-    protected boolean tryMove(int x, int direction){
+    protected boolean tryMove(int x){
         if (winner != 0) {
             return false;
         }
 
-        List<Position> droppedTokens = board.putTokens(x, direction, new Token(player));
+        List<Position> droppedTokens = board.putTokens(x, new Token(player));
         if (droppedTokens.isEmpty()) {
             return false;
         }

@@ -13,6 +13,15 @@ public class Token {
         this.type = type;
     }
 
+    public static String typeToString(int type){
+        return switch (type){
+            case 0 -> " ";
+            case 1 -> "○";
+            case 2 -> "●";
+            default -> String.valueOf(type);
+        };
+    }
+
     public int getType() {
         return type;
     }
@@ -23,12 +32,7 @@ public class Token {
 
     @Override
     public String toString() {
-        return switch (type){
-            case 0 -> " ";
-            case 1 -> "○";
-            case 2 -> "●";
-            default -> String.valueOf(type);
-        };
+        return typeToString(type);
     }
 
     @Override

@@ -48,7 +48,7 @@ public class Board {
         if (!isInsideBoard(pos1) || !isInsideBoard(pos2)) {
             return false;
         }
-        return space[pos1.y()][pos1.x()].equals( space[pos2.y()][pos2.x()]);
+        return space[pos1.y()][pos1.x()].equals(space[pos2.y()][pos2.x()]);
     }
 
     public boolean isSameToken(Position pos, BoardVector vector) {
@@ -65,30 +65,15 @@ public class Board {
         return null;
     }
 
-    public List<Position> putTokens(int x, int direction, Token token) {
-        if (x < 0 || boardSize <= x) {
-            return null;
-        }
-
-        if (direction == 0 && boardSize - 1 <= x) {
-            return new ArrayList<Position>();
-        }
-        if (direction == 0
-                && (space[0][x] != null || space[0][x + 1] != null)) {
-            return new ArrayList<Position>();
-        }
-        if (direction == 1 && space[1][x] != null) {
-            return new ArrayList<Position>();
-        }
-
+    public List<Position> putTokens(int x, Token token) {
         List<Position> droppedTokens = new ArrayList<>();
+        if (x < 0 || boardSize <= x) {
+            return droppedTokens;
+        }
 
-        int offset = direction == 0 ? 1 : 0;
-        for (int i = 0; i < 2; i++) {
-            Position position = dropToken(x + i * offset, token);
-            if (position == null) {
-                return new ArrayList<Position>();
-            }
+        Position position = dropToken(x, token);
+
+        if (position != null) {
             droppedTokens.add(position);
         }
         return droppedTokens;
