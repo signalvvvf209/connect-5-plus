@@ -17,6 +17,22 @@ public class Board {
         this.space = new Token[boardSize][boardSize];
     }
 
+    public Board(Board board) {
+        this.boardSize = board.boardSize;
+        this.space = new Token[boardSize][boardSize];
+        for (int y = 0; y < boardSize; y++) {
+            for (int x = 0; x < boardSize; x++) {
+                if (board.space[y][x] != null) {
+                    this.space[y][x] = new Token(board.space[y][x].getType());
+                }
+            }
+        }
+    }
+
+    public Board boardCopy() {
+        return new Board(this);
+    }
+
     public Token getSpace(int x, int y) {
         if (isInsideBoard(x, y)) {
             return space[y][x];
@@ -34,6 +50,14 @@ public class Board {
         } else {
             throw new IllegalArgumentException("Setter Position Error");
         }
+    }
+
+    public Board replaceTokens(List<Position> positions, int type) {
+        Board newBoard = this.boardCopy();
+        for (Position pos : positions) {
+            newBoard.setSpace(pos, new Token(10 + type));
+        }
+        return newBoard;
     }
 
     public boolean isInsideBoard(int x, int y) {
@@ -65,13 +89,13 @@ public class Board {
         return null;
     }
 
-    public List<Position> putTokens(int x, Token token) {
+    public List<Position> putTokens(int x, int player) {
         List<Position> droppedTokens = new ArrayList<>();
         if (x < 0 || boardSize <= x) {
             return droppedTokens;
         }
 
-        Position position = dropToken(x, token);
+        Position position = dropToken(x, new Token(player));
 
         if (position != null) {
             droppedTokens.add(position);
@@ -79,14 +103,18 @@ public class Board {
         return droppedTokens;
     }
 
-    public boolean check(Position pos) {
+    public List<Position> findWinningPositions(Position pos) {
         if (!isInsideBoard(pos)) {
-            return false;
+            return List.of();
         }
-        return checkLine(pos) || checkCross(pos);
+        List<Position> line = findLineWin(pos);
+        if (!line.isEmpty()) {
+            return line;
+        }
+        return findCrossWin(pos);
     }
 
-    private boolean checkLine(Position pos) {
+    private List<Position> findLineWin(Position pos) {
         final List<BoardVector> vectors = List.of(
                 new BoardVector(0, 1),
                 new BoardVector(1, 1),
@@ -94,24 +122,26 @@ public class Board {
         );
 
         for (BoardVector vector : vectors) {
-            int cnt = 1;
+            List<Position> line = new ArrayList<>();
+            line.add(pos);
             for (int sign = -1; sign <= 1; sign += 2) {
                 for (int i = 1; i < 5; i++) {
-                    if (isSameToken(pos, vector.multiply(sign * i))) {
-                        cnt++;
+                    Position p = pos.offset(vector.multiply(sign * i));
+                    if (isSameToken(pos, p)) {
+                        line.add(p);
                     } else {
                         break;
                     }
                 }
             }
-            if (cnt >= 5) {
-                return true;
+            if (line.size() >= 5) {
+                return line;
             }
         }
-        return false;
+        return List.of();
     }
 
-    private boolean checkCross(Position pos) {
+    private List<Position> findCrossWin(Position pos) {
 
         List<BoardVector> vectors = List.of(
                 new BoardVector(1, 0),
@@ -127,7 +157,13 @@ public class Board {
                         && isSameToken(pos, new BoardVector(1, -1))
                         && isSameToken(pos, new BoardVector(-1, 1))
         ) {
-            return true;
+            return List.of(
+                    pos,
+                    pos.offset(new BoardVector(1, 1)),
+                    pos.offset(new BoardVector(-1, -1)),
+                    pos.offset(new BoardVector(1, -1)),
+                    pos.offset(new BoardVector(-1, 1))
+            );
         }
 
         for (BoardVector vector : vectors) {
@@ -137,10 +173,20 @@ public class Board {
                             && isSameToken(pos, vector.add(vector.right90()))
                             && isSameToken(pos, vector)
             ) {
-                return true;
+                return List.of(
+                        pos,
+                        pos.offset(vector.multiply(2)),
+                        pos.offset(vector.add(vector.left90())),
+                        pos.offset(vector.add(vector.right90())),
+                        pos.offset(vector)
+                );
             }
         }
-        return false;
+        return List.of();
+    }
+
+    public void printWin(List<Position> positions, int player) {
+        System.out.println(this.boardCopy().replaceTokens(positions,  player));
     }
 
     @Override

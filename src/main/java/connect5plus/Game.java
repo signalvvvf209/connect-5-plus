@@ -5,8 +5,9 @@ import java.util.Scanner;
 
 public class Game {
     private int player = 1;
-    private int winner = 0;
     private final int playerMax = 2;
+    private int winner = 0;
+    private List<Position> winningPositions = List.of();
     private final Board board;
 
     public Game() {
@@ -19,6 +20,7 @@ public class Game {
 
     protected void progress() {
         int tokenCount = 0;
+
         while (true) {
             System.out.println(board);
 
@@ -47,8 +49,10 @@ public class Game {
 
         System.out.println(board);
         if (winner > 0) {
+            board.printWin(winningPositions, winner);
             System.out.println("Player" + winner + "の勝ち！");
         } else if (winner == 0) {
+            System.out.println(board);
             System.out.println("引き分け");
         } else {
             System.out.println("ゲームを終了しました。");
@@ -101,14 +105,16 @@ public class Game {
             return false;
         }
 
-        List<Position> droppedTokens = board.putTokens(x, new Token(player));
+        List<Position> droppedTokens = board.putTokens(x, player);
         if (droppedTokens.isEmpty()) {
             return false;
         }
 
         for (Position p : droppedTokens) {
-            if (board.check(p)) {
+            List<Position> winPos = board.findWinningPositions(p);
+            if (!winPos.isEmpty()) {
                 winner = player;
+                this.winningPositions = winPos;
                 break;
             }
         }

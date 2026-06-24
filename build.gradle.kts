@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "connect5plus"
-version = "2.1.0"
+version = "2.1.1"
 
 val generateVersionClass = tasks.register("generateVersionClass") {
     val versionValue = project.version.toString()

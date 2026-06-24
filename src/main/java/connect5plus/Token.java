@@ -18,6 +18,8 @@ public class Token {
             case 0 -> " ";
             case 1 -> "○";
             case 2 -> "●";
+            case 11 -> "◇";
+            case 12 -> "◆";
             default -> String.valueOf(type);
         };
     }
