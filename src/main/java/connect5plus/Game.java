@@ -18,20 +18,27 @@ public class Game {
     }
 
     protected void progress() {
+        int tokenCount = 0;
         while (true) {
             System.out.println(board);
 
-                int x = selectPosition();
-                if (x == -1) {
-                    break;
-                }
+            int x = selectPosition();
+            if (x == -1) {
+                winner = -1;
+                break;
+            }
 
             if (!tryMove(x)) {
                 System.out.println("そこには置けません");
                 continue;
             }
+            tokenCount++;
+
 
             if (winner != 0) {
+                break;
+            }
+            if (tokenCount >= board.boardSize * board.boardSize) {
                 break;
             }
 
@@ -39,8 +46,10 @@ public class Game {
         }
 
         System.out.println(board);
-        if (winner != 0) {
+        if (winner > 0) {
             System.out.println("Player" + winner + "の勝ち！");
+        } else if (winner == 0) {
+            System.out.println("引き分け");
         } else {
             System.out.println("ゲームを終了しました。");
         }
