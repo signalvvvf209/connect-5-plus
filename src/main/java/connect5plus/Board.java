@@ -1,12 +1,11 @@
 package connect5plus;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Board {
     public final int boardSize;
     private final Token[][] space;
+    public int tokenCount = 0;
 
     public Board() {
         this(9);
@@ -18,8 +17,8 @@ public class Board {
     }
 
     public Board(Board board) {
-        this.boardSize = board.boardSize;
-        this.space = new Token[boardSize][boardSize];
+        this(board.boardSize);
+        this.tokenCount = board.tokenCount;
         for (int y = 0; y < boardSize; y++) {
             for (int x = 0; x < boardSize; x++) {
                 if (board.space[y][x] != null) {
@@ -46,13 +45,16 @@ public class Board {
 
     private void setSpace(Position pos, Token token) throws IllegalArgumentException {
         if (isInsideBoard(pos)) {
+            if (this.space[pos.y()][pos.x()] == null) {
+                tokenCount++;
+            }
             this.space[pos.y()][pos.x()] = token;
         } else {
             throw new IllegalArgumentException("Setter Position Error");
         }
     }
 
-    public Board replaceTokens(List<Position> positions, int type) {
+    public Board replaceTokens(Set<Position> positions, int type) {
         Board newBoard = this.boardCopy();
         for (Position pos : positions) {
             newBoard.setSpace(pos, new Token(10 + type));
@@ -72,7 +74,7 @@ public class Board {
         if (!isInsideBoard(pos1) || !isInsideBoard(pos2)) {
             return false;
         }
-        return space[pos1.y()][pos1.x()].equals(space[pos2.y()][pos2.x()]);
+        return Objects.equals(space[pos1.y()][pos1.x()], space[pos2.y()][pos2.x()]);
     }
 
     public boolean isSameToken(Position pos, BoardVector vector) {
@@ -83,14 +85,15 @@ public class Board {
         for (int y = boardSize - 1; y >= 0; y--) {
             if (space[y][x] == null) {
                 space[y][x] = token;
+                tokenCount++;
                 return new Position(x, y);
             }
         }
         return null;
     }
 
-    public List<Position> putTokens(int x, int player) {
-        List<Position> droppedTokens = new ArrayList<>();
+    public Set<Position> putTokens(int x, int player) {
+        Set<Position> droppedTokens = new HashSet<>();
         if (x < 0 || boardSize <= x) {
             return droppedTokens;
         }
@@ -103,26 +106,25 @@ public class Board {
         return droppedTokens;
     }
 
-    public List<Position> findWinningPositions(Position pos) {
+    public Set<Position> findWinningPositions(Position pos) {
         if (!isInsideBoard(pos)) {
-            return List.of();
+            return Set.of();
         }
-        List<Position> line = findLineWin(pos);
-        if (!line.isEmpty()) {
-            return line;
-        }
-        return findCrossWin(pos);
+        Set<Position> winPos = new HashSet<>(findLineWin(pos));
+        winPos.addAll(findCrossWin(pos));
+        return Set.copyOf(winPos);
     }
 
-    private List<Position> findLineWin(Position pos) {
+    private Set<Position> findLineWin(Position pos) {
         final List<BoardVector> vectors = List.of(
                 new BoardVector(0, 1),
                 new BoardVector(1, 1),
-                new BoardVector(1, 0)
+                new BoardVector(1, 0),
+                new BoardVector(1, -1)
         );
 
         for (BoardVector vector : vectors) {
-            List<Position> line = new ArrayList<>();
+            Set<Position> line = new HashSet<>();
             line.add(pos);
             for (int sign = -1; sign <= 1; sign += 2) {
                 for (int i = 1; i < 5; i++) {
@@ -135,14 +137,14 @@ public class Board {
                 }
             }
             if (line.size() >= 5) {
-                return line;
+                return Set.copyOf(line);
             }
         }
-        return List.of();
+        return Set.of();
     }
 
-    private List<Position> findCrossWin(Position pos) {
-
+    private Set<Position> findCrossWin(Position pos) {
+        Set<Position> winPos = new HashSet<>();
         List<BoardVector> vectors = List.of(
                 new BoardVector(1, 0),
                 new BoardVector(1, 1),
@@ -157,12 +159,14 @@ public class Board {
                         && isSameToken(pos, new BoardVector(1, -1))
                         && isSameToken(pos, new BoardVector(-1, 1))
         ) {
-            return List.of(
-                    pos,
-                    pos.offset(new BoardVector(1, 1)),
-                    pos.offset(new BoardVector(-1, -1)),
-                    pos.offset(new BoardVector(1, -1)),
-                    pos.offset(new BoardVector(-1, 1))
+            winPos.addAll(
+                    Set.of(
+                            pos,
+                            pos.offset(new BoardVector(1, 1)),
+                            pos.offset(new BoardVector(-1, -1)),
+                            pos.offset(new BoardVector(1, -1)),
+                            pos.offset(new BoardVector(-1, 1))
+                    )
             );
         }
 
@@ -173,21 +177,28 @@ public class Board {
                             && isSameToken(pos, vector.add(vector.right90()))
                             && isSameToken(pos, vector)
             ) {
-                return List.of(
-                        pos,
-                        pos.offset(vector.multiply(2)),
-                        pos.offset(vector.add(vector.left90())),
-                        pos.offset(vector.add(vector.right90())),
-                        pos.offset(vector)
+                winPos.addAll(
+                        Set.of(
+                                pos,
+                                pos.offset(vector.multiply(2)),
+                                pos.offset(vector.add(vector.left90())),
+                                pos.offset(vector.add(vector.right90())),
+                                pos.offset(vector)
+                        )
                 );
             }
         }
-        return List.of();
+        return Set.copyOf(winPos);
     }
 
-    public void printWin(List<Position> positions, int player) {
-        System.out.println(this.boardCopy().replaceTokens(positions,  player));
+    public void printWin(Set<Position> positions, int player) {
+        System.out.println(this.boardCopy().replaceTokens(positions, player));
     }
+
+    public boolean isFull() {
+        return tokenCount >= boardSize * boardSize;
+    }
+
 
     @Override
     public String toString() {
@@ -230,7 +241,7 @@ public class Board {
             }
             for (int y = 0; y < boardSize; y++) {
                 for (int x = 0; x < boardSize; x++) {
-                    if (b.space[y][x] != this.space[y][x]){
+                    if (Objects.equals(b.space[y][x], this.space[y][x])){
                         return false;
                     }
                 }

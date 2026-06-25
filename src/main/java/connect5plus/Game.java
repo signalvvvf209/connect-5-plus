@@ -1,13 +1,13 @@
 package connect5plus;
 
-import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Game {
     private int player = 1;
     private final int playerMax = 2;
     private int winner = 0;
-    private List<Position> winningPositions = List.of();
+    private Set<Position> winningPositions = Set.of();
     private final Board board;
 
     public Game() {
@@ -19,8 +19,6 @@ public class Game {
     }
 
     protected void progress() {
-        int tokenCount = 0;
-
         while (true) {
             System.out.println(board);
 
@@ -34,13 +32,12 @@ public class Game {
                 System.out.println("そこには置けません");
                 continue;
             }
-            tokenCount++;
-
 
             if (winner != 0) {
                 break;
             }
-            if (tokenCount >= board.boardSize * board.boardSize) {
+
+            if (board.isFull()) {
                 break;
             }
 
@@ -50,7 +47,8 @@ public class Game {
         System.out.println(board);
         if (winner > 0) {
             board.printWin(winningPositions, winner);
-            System.out.println("Player" + winner + "の勝ち！");
+            StringBuilder sb = new StringBuilder().repeat("！", winningPositions.size() - 5);
+            System.out.println("Player" + winner + "の勝ち！" + sb);
         } else if (winner == 0) {
             System.out.println(board);
             System.out.println("引き分け");
@@ -84,7 +82,7 @@ public class Game {
         while (true) {
             System.out.println("0 ~ " + (board.boardSize - 1) + " で置く場所を指定してください (eで終了)");
             String str = scanner.next();
-            if (str.equals("e")) {
+            if ("e".equals(str)) {
 
                 return -1;
             }
@@ -105,13 +103,13 @@ public class Game {
             return false;
         }
 
-        List<Position> droppedTokens = board.putTokens(x, player);
+        Set<Position> droppedTokens = board.putTokens(x, player);
         if (droppedTokens.isEmpty()) {
             return false;
         }
 
         for (Position p : droppedTokens) {
-            List<Position> winPos = board.findWinningPositions(p);
+            Set<Position> winPos = board.findWinningPositions(p);
             if (!winPos.isEmpty()) {
                 winner = player;
                 this.winningPositions = winPos;

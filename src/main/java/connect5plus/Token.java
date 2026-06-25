@@ -16,10 +16,10 @@ public class Token {
     public static String typeToString(int type){
         return switch (type){
             case 0 -> " ";
-            case 1 -> "○";
-            case 2 -> "●";
-            case 11 -> "◇";
-            case 12 -> "◆";
+            case 1 -> "●";
+            case 2 -> "○";
+            case 11 -> "◆";
+            case 12 -> "◇";
             default -> String.valueOf(type);
         };
     }

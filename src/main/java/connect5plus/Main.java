@@ -4,10 +4,16 @@ public class Main {
     public static void main(String[] args) {
         ConsoleEncoding.configureUtf8();
         System.out.println("Connect 5 Plus v" + Version.VERSION);
-        if (args.length > 0 && args[0].equals("-a")) {
-            new AutoGame().begin();
+        Game game = null;
+        if (args.length > 0) {
+            game = switch (args[0]) {
+                case "-a" -> new AutoGame();
+                case "-s" -> new SemiAutoGame();
+                default -> new Game();
+            };
         } else {
-            new Game().begin();
+            game = new Game();
         }
+        game.begin();
     }
 }

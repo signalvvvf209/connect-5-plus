@@ -2,7 +2,7 @@
   <configuration default="false" name="Main (UTF-8)" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="connect5plus.Main" />
     <module name="connect-5-plus.main" />
-    <option name="PROGRAM_PARAMETERS" value="-a" />
+    <option name="PROGRAM_PARAMETERS" value="-s" />
     <option name="VM_PARAMETERS" value="-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8" />
     <method v="2">
       <option name="Make" enabled="true" />
