@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "connect5plus"
-version = "2.1.1"
+version = "2.2.1"
 
 val generateVersionClass = tasks.register("generateVersionClass") {
     val versionValue = project.version.toString()
@@ -43,7 +43,7 @@ tasks.compileJava {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(26))
     }
 }
 

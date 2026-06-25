@@ -1,5 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Main (UTF-8)" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="openjdk-26" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="connect5plus.Main" />
     <module name="connect-5-plus.main" />
     <option name="PROGRAM_PARAMETERS" value="-s" />
