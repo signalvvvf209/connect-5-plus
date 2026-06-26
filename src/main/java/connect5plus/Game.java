@@ -3,21 +3,40 @@ package connect5plus;
 import java.util.Scanner;
 import java.util.Set;
 
+/**
+ * 1つの試合を管理するクラス
+ * @author 羽井出
+ */
 public class Game {
+    /** 現在のプレイヤー */
     private int player = 1;
+    /** プレイヤーの最大数 */
     private final int playerMax = 2;
+    /** 勝利したプレイヤー */
     private int winner = 0;
+    /** 勝利時、揃っている駒のセット */
     private Set<Position> winningPositions = Set.of();
+    /** この試合のボード */
     private final Board board;
 
+    /**
+     * 試合を担当するインスタンスを生成。
+     * デフォルトでは 9 x 9 のボードが作られる。
+     */
     public Game() {
         this.board = new Board(9);
     }
 
+    /**
+     * ゲームを始める
+     */
     public void begin(){
         progress();
     }
 
+    /**
+     * ゲームの進行を管理する
+     */
     protected void progress() {
         while (true) {
             System.out.println(board);
@@ -57,6 +76,9 @@ public class Game {
         }
     }
 
+    /**
+     * 次のプレイヤーの手番にする
+     */
     protected void nextPlayer() {
         player++;
         if (player > playerMax) {
@@ -64,18 +86,35 @@ public class Game {
         }
     }
 
+    /**
+     * 現在のプレイヤーを取得するゲッター
+     * @return 現在のプレイヤー
+     */
     protected int getPlayer() {
         return player;
     }
 
+    /**
+     * 勝利したプレイヤーを取得するゲッター
+     * @return 勝利したプレイヤー
+     */
     protected int getWinner() {
         return winner;
     }
 
+    /**
+     * ボードを取得するゲッター
+     * @return ボード
+     */
     protected Board getBoard() {
         return board;
     }
 
+    /**
+     * 駒を落下させる位置を決める。
+     * コンソールからボードの範囲内の x 座標 または ゲームを終了する指示("e"の入力)を受け取り、戻り値を返す。
+     * @return x 座標 または 負の整数 (終了指示)
+     */
     protected int selectPosition() {
         Scanner scanner = ConsoleEncoding.newScanner();
         System.out.println("Player" + player + " (" + Token.typeToString(player) + ") の番です");
@@ -97,6 +136,12 @@ public class Game {
         }
     }
 
+    /**
+     * 駒を落とし、 true を返す。
+     * さらに、落とした駒が揃った場合はそれらの位置と勝者を記録する。
+     * 落とせない場合は false を返す。
+     * @return 駒を落とせた場合 true
+     */
     protected boolean tryMove(int x){
         if (winner != 0) {
             return false;
