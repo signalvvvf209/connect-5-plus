@@ -201,27 +201,27 @@ public class Board {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("|");
-        sb.repeat(" ", boardSize * 2 + 1);
+        sb.repeat(' ', boardSize * 2 + 1);
         sb.append("|\n");
 
         for (int y = 0; y < boardSize; y++) {
             sb.append("| ");
             for (int x = 0; x < boardSize; x++) {
                 Token t = space[y][x];
-                sb
-                        .append(t != null ? t : " ")
-                        .append(" ");
+                sb.append(t != null ? t : ' ').append(' ');
             }
             sb.append("|\n");
         }
 
         sb
                 .append("|")
-                .repeat("-", boardSize * 2 + 1)
+                .repeat('-', boardSize * 2 + 1)
                 .append("|\n");
 
         sb.append("| ");
-        IntStream.range(0, boardSize).forEach(x -> sb.append(x).append(" "));
+        for (int x = 0; x < boardSize; x++) {
+            sb.append(x).append(' ');
+        }
         sb.append("|\n");
 
         return sb.toString();

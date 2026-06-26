@@ -47,7 +47,7 @@ public class Game {
         System.out.println(board);
         if (winner > 0) {
             board.printWin(winningPositions, winner);
-            StringBuilder sb = new StringBuilder().repeat("！", winningPositions.size() - 5);
+            StringBuilder sb = new StringBuilder().repeat('！', winningPositions.size() - 5);
             System.out.println("Player" + winner + "の勝ち！" + sb);
         } else if (winner == 0) {
             System.out.println(board);
