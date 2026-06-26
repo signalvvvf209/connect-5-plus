@@ -33,7 +33,7 @@ public class Game {
                 continue;
             }
 
-            if (winner < 0) {
+            if (winner != 0) {
                 break;
             }
 
