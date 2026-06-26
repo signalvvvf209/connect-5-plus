@@ -219,7 +219,7 @@ public class Board {
                 .append('|')
                 .append('\n');
 
-        sb.append("| ");
+        sb.append('|').append(' ');
         for (int x = 0; x < boardSize; x++) {
             sb.append(x).append(' ');
         }
