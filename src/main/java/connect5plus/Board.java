@@ -202,27 +202,28 @@ public class Board {
     public String toString() {
         StringBuilder sb = new StringBuilder("|");
         sb.repeat(' ', boardSize * 2 + 1);
-        sb.append("|\n");
+        sb.append('|').append('\n');
 
         for (int y = 0; y < boardSize; y++) {
-            sb.append("| ");
+            sb.append('|').append(' ');
             for (int x = 0; x < boardSize; x++) {
                 Token t = space[y][x];
                 sb.append(t != null ? t : ' ').append(' ');
             }
-            sb.append("|\n");
+            sb.append('|').append('\n');
         }
 
         sb
-                .append("|")
+                .append('|')
                 .repeat('-', boardSize * 2 + 1)
-                .append("|\n");
+                .append('|')
+                .append('\n');
 
         sb.append("| ");
         for (int x = 0; x < boardSize; x++) {
             sb.append(x).append(' ');
         }
-        sb.append("|\n");
+        sb.append('|').append('\n');
 
         return sb.toString();
     }
