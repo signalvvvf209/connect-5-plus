@@ -118,12 +118,12 @@ public class Board {
 
     private Set<Position> findLineWin(Position pos) {
         Set<Position> winPos = new HashSet<>();
-        final List<BoardVector> vectors = List.of(
+        final BoardVector[] vectors = {
                 new BoardVector(0, 1),
                 new BoardVector(1, 1),
                 new BoardVector(1, 0),
                 new BoardVector(1, -1)
-        );
+        };
 
         for (BoardVector vector : vectors) {
             Set<Position> line = new HashSet<>(Set.of(pos));
@@ -146,13 +146,13 @@ public class Board {
 
     private Set<Position> findCrossWin(Position pos) {
         Set<Position> winPos = new HashSet<>();
-        List<BoardVector> vectors = List.of(
+        BoardVector[] vectors = {
                 new BoardVector(1, 0),
                 new BoardVector(1, 1),
                 new BoardVector(0, 1),
                 new BoardVector(-1, 1),
                 new BoardVector(-1, 0)
-        );
+        };
 
         if (
                 isSameToken(pos, new BoardVector(1, 1))
