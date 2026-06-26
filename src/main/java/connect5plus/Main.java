@@ -4,7 +4,7 @@ public class Main {
     public static void main(String[] args) {
         ConsoleEncoding.configureUtf8();
         System.out.println("Connect 5 Plus v" + Version.VERSION);
-        Game game = null;
+        Game game;
         if (args.length > 0) {
             game = switch (args[0]) {
                 case "-a" -> new AutoGame();

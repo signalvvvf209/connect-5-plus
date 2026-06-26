@@ -1,6 +1,7 @@
 package connect5plus;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Board {
     public final int boardSize;
@@ -33,12 +34,9 @@ public class Board {
     }
 
     public Token getSpace(int x, int y) {
-        if (isInsideBoard(x, y)) {
-            return space[y][x];
-        } else {
-            return null;
-        }
+        return isInsideBoard(x, y) ? space[y][x] : null;
     }
+
     public Token getSpace(Position pos) {
         return (pos != null) ? getSpace(pos.x(), pos.y()) : null;
     }
@@ -62,8 +60,12 @@ public class Board {
         return newBoard;
     }
 
+    public boolean isInsideBoard(int value) {
+        return 0 <= value && value < boardSize;
+    }
+
     public boolean isInsideBoard(int x, int y) {
-        return (0 <= x && x < boardSize && 0 <= y && y < boardSize);
+        return isInsideBoard(x) && isInsideBoard(y);
     }
 
     public boolean isInsideBoard(Position pos) {
@@ -71,10 +73,11 @@ public class Board {
     }
 
     public boolean isSameToken(Position pos1, Position pos2) {
-        if (!isInsideBoard(pos1) || !isInsideBoard(pos2)) {
+        if (isInsideBoard(pos1) && isInsideBoard(pos2)) {
+            return Objects.equals(space[pos1.y()][pos1.x()], space[pos2.y()][pos2.x()]);
+        } else {
             return false;
         }
-        return Objects.equals(space[pos1.y()][pos1.x()], space[pos2.y()][pos2.x()]);
     }
 
     public boolean isSameToken(Position pos, BoardVector vector) {
@@ -94,12 +97,10 @@ public class Board {
 
     public Set<Position> putTokens(int x, int player) {
         Set<Position> droppedTokens = new HashSet<>();
-        if (x < 0 || boardSize <= x) {
-            return droppedTokens;
+        if (!isInsideBoard(x)) {
+            return Set.of();
         }
-
         Position position = dropToken(x, new Token(player));
-
         if (position != null) {
             droppedTokens.add(position);
         }
@@ -116,6 +117,7 @@ public class Board {
     }
 
     private Set<Position> findLineWin(Position pos) {
+        Set<Position> winPos = new HashSet<>();
         final List<BoardVector> vectors = List.of(
                 new BoardVector(0, 1),
                 new BoardVector(1, 1),
@@ -124,23 +126,22 @@ public class Board {
         );
 
         for (BoardVector vector : vectors) {
-            Set<Position> line = new HashSet<>();
-            line.add(pos);
+            Set<Position> line = new HashSet<>(Set.of(pos));
             for (int sign = -1; sign <= 1; sign += 2) {
                 for (int i = 1; i < 5; i++) {
-                    Position p = pos.offset(vector.multiply(sign * i));
-                    if (isSameToken(pos, p)) {
-                        line.add(p);
+                    Position target = pos.offset(vector.multiply(sign * i));
+                    if (isSameToken(target, pos)) {
+                        line.add(target);
                     } else {
                         break;
                     }
                 }
             }
             if (line.size() >= 5) {
-                return Set.copyOf(line);
+                winPos.addAll(line);
             }
         }
-        return Set.of();
+        return Set.copyOf(winPos);
     }
 
     private Set<Position> findCrossWin(Position pos) {
@@ -196,7 +197,7 @@ public class Board {
     }
 
     public boolean isFull() {
-        return tokenCount >= boardSize * boardSize;
+        return tokenCount >= (boardSize * boardSize);
     }
 
 
@@ -218,16 +219,12 @@ public class Board {
         }
 
         sb
-                .append("|-")
-                .repeat("-", boardSize * 2)
+                .append("|")
+                .repeat("-", boardSize * 2 + 1)
                 .append("|\n");
 
         sb.append("| ");
-        for (int x = 0; x < boardSize; x++) {
-            sb
-                    .append(x)
-                    .append(" ");
-        }
+        IntStream.range(0, boardSize).forEach(x -> sb.append(x).append(" "));
         sb.append("|\n");
 
         return sb.toString();

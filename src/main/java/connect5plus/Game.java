@@ -23,7 +23,7 @@ public class Game {
             System.out.println(board);
 
             int x = selectPosition();
-            if (x == -1) {
+            if (x < 0) {
                 winner = -1;
                 break;
             }
@@ -33,7 +33,7 @@ public class Game {
                 continue;
             }
 
-            if (winner != 0) {
+            if (winner < 0) {
                 break;
             }
 
@@ -83,12 +83,11 @@ public class Game {
             System.out.println("0 ~ " + (board.boardSize - 1) + " で置く場所を指定してください (eで終了)");
             String str = scanner.next();
             if ("e".equals(str)) {
-
                 return -1;
             }
             try {
                 int x = Integer.parseInt(str);
-                if (0 <= x && x < board.boardSize){
+                if (board.isInsideBoard(x)){
                     return x;
                 }
                 System.out.println("範囲内の値を入力してください");
