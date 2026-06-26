@@ -111,13 +111,13 @@ public class Board {
         if (!isInsideBoard(pos)) {
             return Set.of();
         }
-        Set<Position> winPos = new HashSet<>(findLineWin(pos));
-        winPos.addAll(findCrossWin(pos));
+        Set<Position> winPos = new HashSet<>();
+        findLineWin(pos, winPos);
+        findCrossWin(pos, winPos);
         return Set.copyOf(winPos);
     }
 
-    private Set<Position> findLineWin(Position pos) {
-        Set<Position> winPos = new HashSet<>();
+    private void findLineWin(Position pos, Set<Position> winPos) {
         final BoardVector[] vectors = {
                 new BoardVector(0, 1),
                 new BoardVector(1, 1),
@@ -141,11 +141,9 @@ public class Board {
                 winPos.addAll(line);
             }
         }
-        return Set.copyOf(winPos);
     }
 
-    private Set<Position> findCrossWin(Position pos) {
-        Set<Position> winPos = new HashSet<>();
+    private void findCrossWin(Position pos, Set<Position> winPos) {
         BoardVector[] vectors = {
                 new BoardVector(1, 0),
                 new BoardVector(1, 1),
@@ -189,7 +187,6 @@ public class Board {
                 );
             }
         }
-        return Set.copyOf(winPos);
     }
 
     public void printWin(Set<Position> positions, int player) {
