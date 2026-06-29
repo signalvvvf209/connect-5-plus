@@ -157,18 +157,46 @@ public class Board {
     }
 
     /**
+     * 指定されたx座標に駒を落とせるかどうか判定
+     * @param x 横方向の座標
+     * @return 可能な場合 true
+     */
+    public boolean canDrop(int x) {
+        if (!isInsideBoard(x)) {
+            return false;
+        }
+        return space[0][x] == null;
+    }
+
+    /**
+     * 指定されたx座標に駒を落とした時のy座標を返す
+     * @param x 横方向の座標
+     * @return y座標 (縦方向の座標)。落とせない場合は -1
+     */
+    public int getDropRow(int x) {
+        if (!canDrop(x)) {
+            return -1;
+        }
+        for (int y = boardSize - 1; y >= 0; y--) {
+            if (space[y][x] == null) {
+                return y;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * 横方向 x に受け取った駒を落とし、落ちた位置を返す
      * @param x 横方向の座標
      * @param token 落とす駒
      * @return 落ちた駒の位置。落とせない場合 null
      */
     private Position dropToken(int x, Token token) {
-        for (int y = boardSize - 1; y >= 0; y--) {
-            if (space[y][x] == null) {
-                space[y][x] = token;
-                tokenCount++;
-                return new Position(x, y);
-            }
+        int y = getDropRow(x);
+        if (y >= 0) {
+            space[y][x] = token;
+            tokenCount++;
+            return new Position(x, y);
         }
         return null;
     }

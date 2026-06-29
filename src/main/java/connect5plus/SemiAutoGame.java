@@ -15,7 +15,7 @@ public class SemiAutoGame extends Game{
      */
     @Override
     protected int selectPosition() {
-        if (getPlayer() != 1){
+        if (getCurrentPlayer() != 1){
             return new Random().nextInt(getBoard().boardSize);
         } else {
             return super.selectPosition();

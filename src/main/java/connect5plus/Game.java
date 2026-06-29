@@ -90,7 +90,7 @@ public class Game {
      * 現在のプレイヤーを取得するゲッター
      * @return 現在のプレイヤー
      */
-    protected int getPlayer() {
+    protected int getCurrentPlayer() {
         return player;
     }
 
@@ -111,9 +111,17 @@ public class Game {
     }
 
     /**
+     * 勝利時に揃った駒の位置を返すゲッター
+     * @return 揃った駒の位置のセット
+     */
+    protected Set<Position> getWinningPositions() {
+        return winningPositions;
+    }
+
+    /**
      * 駒を落下させる位置を決める。
      * コンソールからボードの範囲内の x 座標 または ゲームを終了する指示("e"の入力)を受け取り、戻り値を返す。
-     * @return x 座標 または 負の整数 (終了指示)
+     * @return x 座標 または -1 (終了指示)
      */
     protected int selectPosition() {
         Scanner scanner = ConsoleEncoding.newScanner();
