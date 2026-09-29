@@ -37,7 +37,7 @@ public class Board {
         for (int y = 0; y < boardSize; y++) {
             for (int x = 0; x < boardSize; x++) {
                 if (board.space[y][x] != null) {
-                    this.space[y][x] = new Token(board.space[y][x].getType());
+                    this.space[y][x] = new Token(board.space[y][x].type());
                 }
             }
         }

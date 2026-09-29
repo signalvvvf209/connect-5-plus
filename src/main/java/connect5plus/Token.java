@@ -3,23 +3,13 @@ package connect5plus;
 import java.util.Objects;
 
 /**
- * 1つの駒を表すクラス
+ * 1つの駒を表すレコードクラス
  * @author 羽井出
+ * @param type 駒のタイプ。プレイヤーによって異なる値とする。
  */
-public class Token {
-    /** 駒のタイプ。プレイヤーによって異なる値とする。 */
-    private int type;
-
+public record Token(int type) {
     public Token(){
         this(0);
-    }
-
-    /**
-     * 指定されたタイプの駒のインスタンスを生成する
-     * @param type 駒のタイプ
-     */
-    public Token(int type){
-        this.type = type;
     }
 
     /**
@@ -38,37 +28,8 @@ public class Token {
         };
     }
 
-    /**
-     * 駒のタイプを取得するゲッター
-     * @return 駒のタイプ
-     */
-    public int getType() {
-        return type;
-    }
-
-    /**
-     * 駒のタイプを設定するセッター
-     * @param type 駒のタイプ
-     */
-    public void setType(int type) {
-        this.type = type;
-    }
-
     @Override
     public String toString() {
         return typeToString(type);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Token t) {
-            return t.type == this.type;
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(type);
     }
 }
