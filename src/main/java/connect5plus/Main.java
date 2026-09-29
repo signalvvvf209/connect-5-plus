@@ -12,16 +12,20 @@ public class Main {
      * @param args 引数。-g で GUI、-gs/-ga で CPU 対戦、-gar/-gaa でコンピュータ同士対戦
      */
     public static void main(String[] args) {
-        if (args.length > 0 && "-gaa".equals(args[0])) {
-            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.AUTO_ALPHABETA));
-        } else if (args.length > 0 && "-gar".equals(args[0])) {
-            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.AUTO_RANDOM));
-        } else if (args.length > 0 && "-ga".equals(args[0])) {
-            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.ALPHABETA));
-        } else if (args.length > 0 && "-gs".equals(args[0])) {
-            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.RANDOM));
-        } else if (args.length == 0 || "-g".equals(args[0])) {
-            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.NONE));
+
+    if (args.length > 0) {
+        if (args[0].startsWith("-g")) {
+            SwingUtilities.invokeLater(
+                    () -> new GameFrame(
+                            switch (args[0]) {
+                                case "-gaa" -> GameFrame.OpponentMode.AUTO_ALPHABETA;
+                                case "-gar" -> GameFrame.OpponentMode.AUTO_RANDOM;
+                                case "-ga" -> GameFrame.OpponentMode.ALPHABETA;
+                                case "-gs" -> GameFrame.OpponentMode.RANDOM;
+                                default -> GameFrame.OpponentMode.NONE;
+                            }
+                    )
+            );
         } else {
             ConsoleEncoding.configureUtf8();
             System.out.println("Connect 5+ v" + Version.VERSION);
@@ -32,5 +36,7 @@ public class Main {
             };
             game.begin();
         }
+    } else {
+        SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.NONE));
     }
 }
