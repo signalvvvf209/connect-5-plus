@@ -28,7 +28,7 @@ public class Board {
     }
 
     /**
-     * ボードを指定して、同じ盤面のインスタンスを生成（ディープコピー）
+     * ボードを指定して、同じ盤面のインスタンスを生成（シャローコピー）
      * @param board 複製元のボード
      */
     public Board(Board board) {
@@ -37,14 +37,14 @@ public class Board {
         for (int y = 0; y < boardSize; y++) {
             for (int x = 0; x < boardSize; x++) {
                 if (board.space[y][x] != null) {
-                    this.space[y][x] = new Token(board.space[y][x].type());
+                    this.space[y][x] = board.space[y][x];
                 }
             }
         }
     }
 
     /**
-     * ボードを複製（ディープコピー）し、新しいボードのインスタンスを返す
+     * ボードを複製し、新しいボードのインスタンスを返す
      * @return 複製されたボード
      */
     public Board boardCopy() {
@@ -86,7 +86,7 @@ public class Board {
             }
             this.space[pos.y()][pos.x()] = token;
         } else {
-            throw new IllegalArgumentException("Setter Position Error");
+            throw new IllegalArgumentException("Position Error");
         }
     }
 
@@ -230,8 +230,8 @@ public class Board {
             return Set.of();
         }
         Set<Position> winPos = new HashSet<>();
-        findLineWin(pos, winPos);
-        findCrossWin(pos, winPos);
+        winPos.addAll(findLineWin(pos));
+        winPos.addAll(findCrossWin(pos));
         return Set.copyOf(winPos);
     }
 
@@ -239,9 +239,10 @@ public class Board {
      * 指定された位置を含んで直線に駒が揃っているか確かめる。
      * 揃っている場合は、その駒の位置をセットに追加する。
      * @param pos 基準にする位置
-     * @param winPos 既に揃っている駒の位置を含むセット。他に揃っていない場合は空。
+     * @return 既に揃っている駒の位置を含むセット。他に揃っていない場合は空。
      */
-    private void findLineWin(Position pos, Set<Position> winPos) {
+    private Set<Position> findLineWin(Position pos) {
+        Set<Position> winPos = new HashSet<>();
         final BoardVector[] vectors = {
                 new BoardVector(0, 1),
                 new BoardVector(1, 1),
@@ -265,16 +266,19 @@ public class Board {
                 winPos.addAll(line);
             }
         }
+
+        return Set.copyOf(winPos);
     }
 
     /**
      * 指定された位置を含んで十字やX字に駒が揃っているか確かめる。
      * 揃っている場合は、その駒の位置をセットに追加する。
      * @param pos 基準にする位置
-     * @param winPos 既に揃っている駒の位置を含むセット。他に揃っていない場合は空。
+     * @return 既に揃っている駒の位置を含むセット。他に揃っていない場合は空。
      */
-    private void findCrossWin(Position pos, Set<Position> winPos) {
-        BoardVector[] vectors = {
+    private Set<Position> findCrossWin(Position pos) {
+        Set<Position> winPos = new HashSet<>();
+        final BoardVector[] vectors = {
                 new BoardVector(1, 0),
                 new BoardVector(1, 1),
                 new BoardVector(0, 1),
@@ -317,6 +321,8 @@ public class Board {
                 );
             }
         }
+
+        return Set.copyOf(winPos);
     }
 
     /**

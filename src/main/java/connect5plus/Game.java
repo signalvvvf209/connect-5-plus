@@ -52,11 +52,7 @@ public class Game {
                 continue;
             }
 
-            if (winner != 0) {
-                break;
-            }
-
-            if (board.isFull()) {
+            if (winner != 0 || board.isFull()) {
                 break;
             }
 
@@ -138,7 +134,7 @@ public class Game {
                     return x;
                 }
                 System.out.println("範囲内の値を入力してください");
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException _) {
                 System.out.println("入力が正しくありません");
             }
         }
