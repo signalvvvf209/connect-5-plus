@@ -1,5 +1,7 @@
 package connect5plus;
 
+import org.jspecify.annotations.NullMarked;
+
 import java.util.Scanner;
 import java.util.Set;
 
@@ -7,6 +9,7 @@ import java.util.Set;
  * 1つの試合を管理するクラス
  * @author 羽井出
  */
+@NullMarked
 public class Game {
     /** 現在のプレイヤー */
     private int player = 1;

@@ -1,5 +1,7 @@
 package connect5plus;
 
+import org.jspecify.annotations.NullMarked;
+
 import java.util.Objects;
 
 /**
@@ -7,6 +9,7 @@ import java.util.Objects;
  * @author 羽井出
  * @param type 駒のタイプ。プレイヤーによって異なる値とする。
  */
+@NullMarked
 public record Token(int type) {
     public Token(){
         this(0);

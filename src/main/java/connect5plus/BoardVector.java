@@ -1,5 +1,7 @@
 package connect5plus;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * ボード上でのベクトルを表すレコード
  * @param dx x軸方向
@@ -7,6 +9,7 @@ package connect5plus;
  *
  * @author 羽井出
  */
+@NullMarked
 public record BoardVector(int dx, int dy) {
     /**
      * ベクトルを加算

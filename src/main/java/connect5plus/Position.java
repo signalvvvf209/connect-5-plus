@@ -1,5 +1,7 @@
 package connect5plus;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * ボード上の位置を表すレコード
  * @param x 横方向
@@ -7,6 +9,7 @@ package connect5plus;
  *
  * @author 羽井出
  */
+@NullMarked
 public record Position(int x, int y) {
     /**
      * 現在の位置にベクトルを加算し、新しい位置を返す

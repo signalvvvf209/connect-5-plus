@@ -1,15 +1,18 @@
 package connect5plus;
 
 import java.util.*;
+import org.jspecify.annotations.*;
 
 /**
  * ボードを表すクラス
  * @author 羽井出
  */
+@NullMarked
 public class Board {
     /** ボードの大きさ */
     public final int boardSize;
     /** ボードのマスを表す配列 */
+    @Nullable
     private final Token[][] space;
     /** ボードにある駒の数 */
     public int tokenCount = 0;
@@ -58,6 +61,7 @@ public class Board {
      * @param y 縦方向の座標
      * @return 指定された座標のマス（範囲外の場合はnull）
      */
+    @Nullable
     public Token getSpace(int x, int y) {
         return isInsideBoard(x, y) ? space[y][x] : null;
     }
@@ -68,7 +72,8 @@ public class Board {
      * @param pos 位置
      * @return 指定された座標のマス（範囲外の場合はnull）
      */
-    public Token getSpace(Position pos) {
+    @Nullable
+    public Token getSpace(@Nullable Position pos) {
         return (pos != null) ? getSpace(pos.x(), pos.y()) : null;
     }
 
@@ -128,7 +133,7 @@ public class Board {
      * @param pos 位置
      * @return 範囲内の場合 true
      */
-    public boolean isInsideBoard(Position pos) {
+    public boolean isInsideBoard(@Nullable Position pos) {
         return pos != null && isInsideBoard(pos.x(), pos.y());
     }
 
@@ -138,7 +143,7 @@ public class Board {
      * @param pos2 位置2
      * @return 同じ場合 true。駒がない場合 false
      */
-    public boolean isSameToken(Position pos1, Position pos2) {
+    public boolean isSameToken(@Nullable Position pos1, @Nullable Position pos2) {
         if (isInsideBoard(pos1) && isInsideBoard(pos2)) {
             return Objects.equals(space[pos1.y()][pos1.x()], space[pos2.y()][pos2.x()]);
         } else {
@@ -152,8 +157,8 @@ public class Board {
      * @param vector ベクトル
      * @return 同じ場合 true。駒がない場合 false
      */
-    public boolean isSameToken(Position pos, BoardVector vector) {
-        return vector != null && isSameToken(pos, pos.offset(vector));
+    public boolean isSameToken(@Nullable Position pos, @Nullable BoardVector vector) {
+        return pos != null && vector != null && isSameToken(pos, pos.offset(vector));
     }
 
     /**
@@ -191,6 +196,7 @@ public class Board {
      * @param token 落とす駒
      * @return 落ちた駒の位置。落とせない場合 null
      */
+    @Nullable
     private Position dropToken(int x, Token token) {
         int y = getDropRow(x);
         if (y >= 0) {

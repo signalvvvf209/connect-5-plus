@@ -1,11 +1,14 @@
 package connect5plus;
 
+import org.jspecify.annotations.NullMarked;
+
 import javax.swing.*;
 
 /**
  * Connect 5 Plusを始めるためのクラス
  * @author 羽井出
  */
+@NullMarked
 public class Main {
     /**
      * エントリーポイント
