@@ -209,9 +209,9 @@ public class AlphaBetaAI {
             Token token = board.getSpace(x, y);
             if (token == null) {
                 emptyCount++;
-            } else if (token.getType() == player) {
+            } else if (token.type() == player) {
                 playerCount++;
-            } else if (token.getType() == opponent) {
+            } else if (token.type() == opponent) {
                 opponentCount++;
             }
         }
