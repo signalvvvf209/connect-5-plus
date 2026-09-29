@@ -228,7 +228,7 @@ public class BoardPanel extends JPanel {
 
                 Token t = board.getSpace(x, y);
                 if (t != null) {
-                    drawToken(g2, x, y, cell, offsetX, offsetY, t.getType(), 1.0f);
+                    drawToken(g2, x, y, cell, offsetX, offsetY, t.type(), 1.0f);
                 }
             }
         }
