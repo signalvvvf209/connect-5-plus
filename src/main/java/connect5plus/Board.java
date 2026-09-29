@@ -378,12 +378,12 @@ public class Board {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Board b) {
-            if(b.boardSize != this.boardSize) {
+            if (b.boardSize != this.boardSize) {
                 return false;
             }
             for (int y = 0; y < boardSize; y++) {
                 for (int x = 0; x < boardSize; x++) {
-                    if (Objects.equals(b.space[y][x], this.space[y][x])){
+                    if (!Objects.equals(b.space[y][x], this.space[y][x])) {
                         return false;
                     }
                 }
@@ -399,6 +399,6 @@ public class Board {
      */
     @Override
     public int hashCode() {
-        return Objects.hash((Object) space);
+        return Arrays.deepHashCode(space);
     }
 }

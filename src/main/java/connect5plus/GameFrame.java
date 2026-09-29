@@ -8,10 +8,22 @@ import java.awt.*;
  * @author 羽井出
  */
 public class GameFrame extends JFrame {
-    private static final int COMPUTER_MOVE_DELAY_MS = 400;
+    /** 対戦相手の種類 */
+    public enum OpponentMode {
+        /** 2人対戦 */
+        NONE,
+        /** ランダムに打つコンピュータ */
+        RANDOM,
+        /** アルファベータ法のコンピュータ */
+        ALPHABETA,
+        /** ランダム同士のコンピュータ対戦 */
+        AUTO_RANDOM,
+        /** アルファベータ法同士のコンピュータ対戦 */
+        AUTO_ALPHABETA
+    }
 
-    /** コンピュータとの対戦かどうか */
-    private final boolean vsComputer;
+    /** 対戦相手 */
+    private final OpponentMode opponentMode;
     /** 進行中の試合 */
     private GuiGame game;
     /** 盤面を表示するパネル */
@@ -20,26 +32,34 @@ public class GameFrame extends JFrame {
     private final JLabel playerStatusLabel = new JLabel("", SwingConstants.CENTER);
     /** 盤面操作に関するメッセージの表示 */
     private final JLabel boardStatusLabel = new JLabel("", SwingConstants.CENTER);
-    /** コンピュータの手番を遅延実行するタイマー */
-    private Timer computerMoveTimer;
+    /** コンピュータ着手用の非同期処理 */
+    private SwingWorker<Integer, Void> computerMoveWorker;
 
     /**
      * 2人対戦のゲームウィンドウを生成して表示する
      */
     public GameFrame() {
-        this(false);
+        this(OpponentMode.NONE);
+    }
+
+    /**
+     * ランダム CPU 対戦のゲームウィンドウを生成して表示する
+     * @param vsComputer コンピュータとの対戦の場合 true
+     */
+    public GameFrame(boolean vsComputer) {
+        this(vsComputer ? OpponentMode.RANDOM : OpponentMode.NONE);
     }
 
     /**
      * ゲームウィンドウを生成して表示する
-     * @param vsComputer コンピュータとの対戦の場合 true
+     * @param opponentMode 対戦相手の種類
      */
-    public GameFrame(boolean vsComputer) {
-        this.vsComputer = vsComputer;
+    public GameFrame(OpponentMode opponentMode) {
+        this.opponentMode = opponentMode;
         game = createGame();
         boardPanel = new BoardPanel(game, this::handleMove);
 
-        setTitle(vsComputer ? "Connect 5+ vs CPU" : "Connect 5+");
+        setTitle(windowTitle());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(0, 8));
         updateStatus();
@@ -72,6 +92,33 @@ public class GameFrame extends JFrame {
         setMinimumSize(getSize());
         setLocationRelativeTo(null);
         setVisible(true);
+
+        if (isAutoMode()) {
+            SwingUtilities.invokeLater(this::scheduleComputerMove);
+        }
+    }
+
+    /**
+     * コンピュータ同士の自動対戦モードか判定する
+     * @return 自動対戦の場合 true
+     */
+    private boolean isAutoMode() {
+        return opponentMode == OpponentMode.AUTO_RANDOM
+                || opponentMode == OpponentMode.AUTO_ALPHABETA;
+    }
+
+    /**
+     * ウィンドウタイトルを返す
+     * @return タイトル文字列
+     */
+    private String windowTitle() {
+        return switch (opponentMode) {
+            case RANDOM -> "Connect 5+ vs CPU";
+            case ALPHABETA -> "Connect 5+ vs AI";
+            case AUTO_RANDOM -> "Connect 5+ CPU vs CPU";
+            case AUTO_ALPHABETA -> "Connect 5+ AI vs AI";
+            case NONE -> "Connect 5+";
+        };
     }
 
     /**
@@ -79,7 +126,13 @@ public class GameFrame extends JFrame {
      * @return 新しい試合
      */
     private GuiGame createGame() {
-        return vsComputer ? new GuiSemiAutoGame() : new GuiGame();
+        return switch (opponentMode) {
+            case RANDOM -> new GuiSemiAutoGame();
+            case ALPHABETA -> new GuiAlphaBetaGame();
+            case AUTO_RANDOM -> new GuiAutoGame();
+            case AUTO_ALPHABETA -> new GuiAutoAlphaBetaGame();
+            case NONE -> new GuiGame();
+        };
     }
 
     /**
@@ -102,12 +155,15 @@ public class GameFrame extends JFrame {
      * 試合を初期状態に戻す
      */
     private void resetGame() {
-        stopComputerMoveTimer();
+        cancelComputerMoveWorker();
         game = createGame();
         boardPanel.setGame(game);
         boardStatusLabel.setText("");
         updateStatus();
         boardPanel.requestFocusInWindow();
+        if (isAutoMode()) {
+            scheduleComputerMove();
+        }
     }
 
     /**
@@ -140,29 +196,61 @@ public class GameFrame extends JFrame {
     }
 
     /**
-     * コンピュータの手番であれば、少し待ってから自動で着手する
+     * コンピュータの手番であれば、非同期で着手する
      */
     private void scheduleComputerMove() {
-        if (!(game instanceof GuiSemiAutoGame semi) || !semi.isComputerTurn()) {
+        if (!(game instanceof GuiComputerPlayer computer) || !computer.isComputerTurn()) {
             return;
         }
 
-        stopComputerMoveTimer();
-        computerMoveTimer = new Timer(COMPUTER_MOVE_DELAY_MS, e -> {
-            semi.makeComputerMove();
-            boardPanel.repaint();
-            updateStatus();
-        });
-        computerMoveTimer.setRepeats(false);
-        computerMoveTimer.start();
+        cancelComputerMoveWorker();
+        int player = game.getCurrentPlayer();
+        playerStatusLabel.setText(
+                "Player" + player + " (" + Token.typeToString(player) + ") が考えています..."
+        );
+
+        computerMoveWorker = new SwingWorker<>() {
+            @Override
+            protected Integer doInBackground() {
+                return computer.selectComputerMove();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    if (computerMoveWorker != this) {
+                        return;
+                    }
+                    int x = get();
+                    if (x >= 0 && computer.isComputerTurn()) {
+                        game.makeMove(x);
+                        boardPanel.repaint();
+                        updateStatus();
+                        if (!game.isOver()) {
+                            scheduleComputerMove();
+                        }
+                    } else {
+                        updateStatus();
+                    }
+                } catch (Exception ignored) {
+                    updateStatus();
+                } finally {
+                    if (computerMoveWorker == this) {
+                        computerMoveWorker = null;
+                    }
+                }
+            }
+        };
+        computerMoveWorker.execute();
     }
 
     /**
-     * コンピュータ着手用タイマーを停止する
+     * コンピュータ着手用の非同期処理をキャンセルする
      */
-    private void stopComputerMoveTimer() {
-        if (computerMoveTimer != null && computerMoveTimer.isRunning()) {
-            computerMoveTimer.stop();
+    private void cancelComputerMoveWorker() {
+        if (computerMoveWorker != null) {
+            computerMoveWorker.cancel(true);
+            computerMoveWorker = null;
         }
     }
 

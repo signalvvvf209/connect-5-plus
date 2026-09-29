@@ -9,7 +9,7 @@ import java.util.Random;
  * Player1 が人、Player2 がコンピュータとなる。
  * @author 羽井出
  */
-public class GuiSemiAutoGame extends GuiGame {
+public class GuiSemiAutoGame extends GuiGame implements GuiComputerPlayer {
     private final Random random = new Random();
 
     /**
@@ -50,6 +50,7 @@ public class GuiSemiAutoGame extends GuiGame {
      * コンピュータの手を1手進める
      * @return 駒を落とせた場合 true
      */
+    @Override
     public boolean makeComputerMove() {
         int x = selectComputerMove();
         if (x < 0) {

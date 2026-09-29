@@ -9,13 +9,19 @@ import javax.swing.*;
 public class Main {
     /**
      * エントリーポイント
-     * @param args 引数。-g で GUI、-gs で GUI のコンピュータ対戦、-s でコンソールのコンピュータ対戦
+     * @param args 引数。-g で GUI、-gs/-ga で CPU 対戦、-gar/-gaa でコンピュータ同士対戦
      */
     public static void main(String[] args) {
-        if (args.length > 0 && "-gs".equals(args[0])) {
-            SwingUtilities.invokeLater(() -> new GameFrame(true));
+        if (args.length > 0 && "-gaa".equals(args[0])) {
+            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.AUTO_ALPHABETA));
+        } else if (args.length > 0 && "-gar".equals(args[0])) {
+            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.AUTO_RANDOM));
+        } else if (args.length > 0 && "-ga".equals(args[0])) {
+            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.ALPHABETA));
+        } else if (args.length > 0 && "-gs".equals(args[0])) {
+            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.RANDOM));
         } else if (args.length == 0 || "-g".equals(args[0])) {
-            SwingUtilities.invokeLater(() -> new GameFrame(false));
+            SwingUtilities.invokeLater(() -> new GameFrame(GameFrame.OpponentMode.NONE));
         } else {
             ConsoleEncoding.configureUtf8();
             System.out.println("Connect 5+ v" + Version.VERSION);
