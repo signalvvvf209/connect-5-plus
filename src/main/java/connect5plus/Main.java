@@ -16,7 +16,6 @@ public class Main {
      * @param args 引数。-g で GUI、-gs/-ga で CPU 対戦、-gar/-gaa でコンピュータ同士対戦
      */
     public static void main(String[] args) {
-
         if (args.length > 0) {
             if (args[0].startsWith("-g")) {
                 SwingUtilities.invokeLater(

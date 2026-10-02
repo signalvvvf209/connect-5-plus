@@ -1,5 +1,6 @@
 package connect5plus;
 
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
 
 /**
@@ -15,6 +16,7 @@ public record BoardVector(int dx, int dy) {
      * ベクトルを加算
      * @return 新しいベクトル
      */
+    @Contract(value = "_ -> new", pure = true)
     BoardVector add(BoardVector vector) {
         return new BoardVector(dx + vector.dx, dy + vector.dy);
     }
@@ -23,6 +25,7 @@ public record BoardVector(int dx, int dy) {
      * ベクトルの乗算
      * @return 新しいベクトル
      */
+    @Contract(value = "_ -> new", pure = true)
     BoardVector multiply(int n) {
         return new BoardVector(n * dx, n * dy);
     }
@@ -31,6 +34,7 @@ public record BoardVector(int dx, int dy) {
      * ベクトルを左に90度回転
      * @return 新しいベクトル
      */
+    @Contract(value = "-> new", pure = true)
     BoardVector left90() {
         return new BoardVector(-dy, dx);
     }
@@ -39,6 +43,7 @@ public record BoardVector(int dx, int dy) {
      * ベクトルを右に90度回転
      * @return 新しいベクトル
      */
+    @Contract(value = "-> new", pure = true)
     BoardVector right90() {
         return new BoardVector(dy, -dx);
     }

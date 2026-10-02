@@ -1,5 +1,6 @@
 package connect5plus;
 
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
 
 /**
@@ -16,6 +17,7 @@ public record Position(int x, int y) {
      * @param vector ベクトル
      * @return 新しい位置
      */
+    @Contract(value = "_ -> new", pure = true)
     Position offset(BoardVector vector) {
         return new Position(x + vector.dx(), y + vector.dy());
     }

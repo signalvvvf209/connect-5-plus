@@ -1,8 +1,7 @@
 package connect5plus;
 
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
-
-import java.util.Objects;
 
 /**
  * 1つの駒を表すレコードクラス
@@ -11,6 +10,7 @@ import java.util.Objects;
  */
 @NullMarked
 public record Token(int type) {
+    @Contract(pure = true)
     public Token(){
         this(0);
     }
@@ -20,6 +20,7 @@ public record Token(int type) {
      * @param type 駒のタイプ
      * @return 駒の文字列
      */
+    @Contract(pure = true)
     public static String typeToString(int type){
         return switch (type){
             case 0 -> " ";
@@ -32,6 +33,7 @@ public record Token(int type) {
     }
 
     @Override
+    @Contract(pure = true)
     public String toString() {
         return typeToString(type);
     }

@@ -1,7 +1,8 @@
 package connect5plus;
 
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
-
+import org.jetbrains.annotations.Unmodifiable;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ public class Game {
      * 試合を担当するインスタンスを生成。
      * デフォルトでは 9 x 9 のボードが作られる。
      */
+    @Contract(pure = true)
     public Game() {
         this.board = new Board(9);
     }
@@ -89,7 +91,7 @@ public class Game {
      * 現在のプレイヤーを取得するゲッター
      * @return 現在のプレイヤー
      */
-    protected int getCurrentPlayer() {
+    protected final int getCurrentPlayer() {
         return player;
     }
 
@@ -97,7 +99,7 @@ public class Game {
      * 勝利したプレイヤーを取得するゲッター
      * @return 勝利したプレイヤー
      */
-    protected int getWinner() {
+    protected final int getWinner() {
         return winner;
     }
 
@@ -105,7 +107,7 @@ public class Game {
      * ボードを取得するゲッター
      * @return ボード
      */
-    protected Board getBoard() {
+    protected final Board getBoard() {
         return board;
     }
 
@@ -113,8 +115,10 @@ public class Game {
      * 勝利時に揃った駒の位置を返すゲッター
      * @return 揃った駒の位置のセット
      */
-    protected Set<Position> getWinningPositions() {
-        return winningPositions;
+    @Unmodifiable
+    @Contract(pure = true)
+    protected final Set<Position> getWinningPositions() {
+        return Set.copyOf(winningPositions);
     }
 
     /**
@@ -163,7 +167,7 @@ public class Game {
             Set<Position> winPos = board.findWinningPositions(p);
             if (!winPos.isEmpty()) {
                 winner = player;
-                this.winningPositions = winPos;
+                this.winningPositions = Set.copyOf(winPos);
                 break;
             }
         }

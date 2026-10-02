@@ -1,7 +1,10 @@
 package connect5plus;
 
 import java.util.*;
+
 import org.jspecify.annotations.*;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * ボードを表すクラス
@@ -17,6 +20,7 @@ public class Board {
     /** ボードにある駒の数 */
     public int tokenCount = 0;
 
+    @Contract(pure = true)
     public Board() {
         this(9);
     }
@@ -25,6 +29,7 @@ public class Board {
      * ボードの大きさを指定してインスタンスを生成
      * @param boardSize ボードの大きさ
      */
+    @Contract(pure = true)
     public Board(int boardSize) {
         this.boardSize = boardSize;
         this.space = new Token[boardSize][boardSize];
@@ -34,6 +39,7 @@ public class Board {
      * ボードを指定して、同じ盤面のインスタンスを生成（シャローコピー）
      * @param board 複製元のボード
      */
+    @Contract(pure = true)
     public Board(Board board) {
         this(board.boardSize);
         this.tokenCount = board.tokenCount;
@@ -50,6 +56,7 @@ public class Board {
      * ボードを複製し、新しいボードのインスタンスを返す
      * @return 複製されたボード
      */
+    @Contract(value = "-> new", pure = true)
     public Board boardCopy() {
         return new Board(this);
     }
@@ -62,6 +69,7 @@ public class Board {
      * @return 指定された座標のマス（範囲外の場合はnull）
      */
     @Nullable
+    @Contract(pure = true)
     public Token getSpace(int x, int y) {
         return isInsideBoard(x, y) ? space[y][x] : null;
     }
@@ -73,6 +81,7 @@ public class Board {
      * @return 指定された座標のマス（範囲外の場合はnull）
      */
     @Nullable
+    @Contract(pure = true)
     public Token getSpace(@Nullable Position pos) {
         return (pos != null) ? getSpace(pos.x(), pos.y()) : null;
     }
@@ -84,7 +93,8 @@ public class Board {
      * @param token 駒
      * @throws IllegalArgumentException 位置がボード範囲外の場合
      */
-    private void setSpace(Position pos, Token token) throws IllegalArgumentException {
+    @Contract(value = "null, _ -> fail")
+    private void setSpace(@Nullable Position pos, Token token) throws IllegalArgumentException {
         if (isInsideBoard(pos)) {
             if (this.space[pos.y()][pos.x()] == null) {
                 tokenCount++;
@@ -96,17 +106,14 @@ public class Board {
     }
 
     /**
-     * 位置のセットと駒のタイプを受け取り、指定された複数の位置に駒を置いた新しいボードを返す。
+     * 位置のセットと駒のタイプを受け取り、ボードの指定された複数の位置に駒を置く。
      * @param positions 位置のセット
      * @param type 駒のタイプ
-     * @return 駒を置いた新しいボード
      */
-    public Board replaceTokens(Set<Position> positions, int type) {
-        Board newBoard = this.boardCopy();
+    private void replaceTokens(Set<Position> positions, int type) {
         for (Position pos : positions) {
-            newBoard.setSpace(pos, new Token(10 + type));
+            setSpace(pos, new Token(10 + type));
         }
-        return newBoard;
     }
 
     /**
@@ -133,6 +140,7 @@ public class Board {
      * @param pos 位置
      * @return 範囲内の場合 true
      */
+    @Contract(value = "null -> false", pure = true)
     public boolean isInsideBoard(@Nullable Position pos) {
         return pos != null && isInsideBoard(pos.x(), pos.y());
     }
@@ -143,8 +151,10 @@ public class Board {
      * @param pos2 位置2
      * @return 同じ場合 true。駒がない場合 false
      */
+    @Contract(value = "null, _ -> false; _, null -> false", pure = true)
     public boolean isSameToken(@Nullable Position pos1, @Nullable Position pos2) {
-        if (isInsideBoard(pos1) && isInsideBoard(pos2)) {
+        if (isInsideBoard(pos1) && isInsideBoard(pos2)
+                && space[pos1.y()][pos1.x()] != null && space[pos2.y()][pos2.x()] != null){
             return Objects.equals(space[pos1.y()][pos1.x()], space[pos2.y()][pos2.x()]);
         } else {
             return false;
@@ -157,6 +167,7 @@ public class Board {
      * @param vector ベクトル
      * @return 同じ場合 true。駒がない場合 false
      */
+    @Contract(value = "null, _ -> false; _, null -> false" , pure = true)
     public boolean isSameToken(@Nullable Position pos, @Nullable BoardVector vector) {
         return pos != null && vector != null && isSameToken(pos, pos.offset(vector));
     }
@@ -213,6 +224,7 @@ public class Board {
      * @param player 現在のプレイヤー
      * @return 落ちた駒の位置のセット
      */
+    @Unmodifiable
     public Set<Position> putTokens(int x, int player) {
         Set<Position> droppedTokens = new HashSet<>();
         if (!isInsideBoard(x)) {
@@ -222,7 +234,7 @@ public class Board {
         if (position != null) {
             droppedTokens.add(position);
         }
-        return droppedTokens;
+        return Set.copyOf(droppedTokens);
     }
 
     /**
@@ -231,13 +243,14 @@ public class Board {
      * @param pos 基準にする位置
      * @return 揃っている駒の位置のセット
      */
-    public Set<Position> findWinningPositions(Position pos) {
+    @Unmodifiable
+    public Set<Position> findWinningPositions(@Nullable Position pos) {
         if (!isInsideBoard(pos)) {
             return Set.of();
         }
         Set<Position> winPos = new HashSet<>();
-        winPos.addAll(findLineWin(pos));
-        winPos.addAll(findCrossWin(pos));
+        findLineWin(pos, winPos);
+        findCrossWin(pos, winPos);
         return Set.copyOf(winPos);
     }
 
@@ -245,10 +258,9 @@ public class Board {
      * 指定された位置を含んで直線に駒が揃っているか確かめる。
      * 揃っている場合は、その駒の位置をセットに追加する。
      * @param pos 基準にする位置
-     * @return 既に揃っている駒の位置を含むセット。他に揃っていない場合は空。
+     * @param winPos 既に揃っている駒の位置を含むセット。他に揃っていない場合は空。
      */
-    private Set<Position> findLineWin(Position pos) {
-        Set<Position> winPos = new HashSet<>();
+    private void findLineWin(Position pos, Set<Position> winPos) {
         final BoardVector[] vectors = {
                 new BoardVector(0, 1),
                 new BoardVector(1, 1),
@@ -272,18 +284,15 @@ public class Board {
                 winPos.addAll(line);
             }
         }
-
-        return Set.copyOf(winPos);
     }
 
     /**
      * 指定された位置を含んで十字やX字に駒が揃っているか確かめる。
      * 揃っている場合は、その駒の位置をセットに追加する。
      * @param pos 基準にする位置
-     * @return 既に揃っている駒の位置を含むセット。他に揃っていない場合は空。
+     * @param winPos 既に揃っている駒の位置を含むセット。他に揃っていない場合は空。
      */
-    private Set<Position> findCrossWin(Position pos) {
-        Set<Position> winPos = new HashSet<>();
+    private void findCrossWin(Position pos, Set<Position> winPos) {
         final BoardVector[] vectors = {
                 new BoardVector(1, 0),
                 new BoardVector(1, 1),
@@ -327,8 +336,6 @@ public class Board {
                 );
             }
         }
-
-        return Set.copyOf(winPos);
     }
 
     /**
@@ -337,8 +344,11 @@ public class Board {
      * @param positions 揃っている駒の位置のセット
      * @param player 現在のプレイヤー
      */
+    @Contract(mutates = "io")
     public void printWin(Set<Position> positions, int player) {
-        System.out.println(this.boardCopy().replaceTokens(positions, player));
+        Board winBoard = boardCopy();
+        winBoard.replaceTokens(positions, player);
+        System.out.println(winBoard);
     }
 
     /**
@@ -354,6 +364,7 @@ public class Board {
      * @return 盤面の文字列
      */
     @Override
+    @Contract(pure = true)
     public String toString() {
         StringBuilder sb = new StringBuilder("|");
         sb.repeat(' ', boardSize * 2 + 1);
@@ -388,7 +399,8 @@ public class Board {
      * @return 同じ場合 true
      */
     @Override
-    public boolean equals(Object obj) {
+    @Contract(value = "null -> false", pure = true)
+    public boolean equals(@Nullable Object obj) {
         if (obj instanceof Board b) {
             if (b.boardSize != this.boardSize) {
                 return false;
@@ -410,6 +422,7 @@ public class Board {
      * @return ハッシュコード
      */
     @Override
+    @Contract(pure = true)
     public int hashCode() {
         return Arrays.deepHashCode(space);
     }
