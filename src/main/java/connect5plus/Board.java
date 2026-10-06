@@ -149,23 +149,27 @@ public class Board {
      * 指定された2つの位置にある駒が同じかどうか判定
      * @param pos1 位置1
      * @param pos2 位置2
-     * @return 同じ場合 true。駒がない場合 false
+     * @return 同じ場合 または null同士の場合 true。
      */
-    @Contract(value = "null, _ -> false; _, null -> false", pure = true)
+    @Contract(value = "null, null -> true; !null, null -> false; null, !null -> false", pure = true)
     public boolean isSameToken(@Nullable Position pos1, @Nullable Position pos2) {
-        if (isInsideBoard(pos1) && isInsideBoard(pos2)
-                && space[pos1.y()][pos1.x()] != null && space[pos2.y()][pos2.x()] != null){
-            return Objects.equals(space[pos1.y()][pos1.x()], space[pos2.y()][pos2.x()]);
-        } else {
+        if (pos1 == null) {
+            return pos2 == null;
+        }
+        if (pos2 == null) {
             return false;
         }
+        if (!isInsideBoard(pos1) || !isInsideBoard(pos2)) {
+            return false;
+        }
+        return Objects.equals(space[pos1.y()][pos1.x()], space[pos2.y()][pos2.x()]);
     }
 
     /**
      * 指定された位置と、そこにベクトルを加算した位置にある駒が同じかどうか判定
      * @param pos 位置
      * @param vector ベクトル
-     * @return 同じ場合 true。駒がない場合 false
+     * @return 同じ場合 true。 位置とベクトルのどちらかがnullの場合 false。
      */
     @Contract(value = "null, _ -> false; _, null -> false" , pure = true)
     public boolean isSameToken(@Nullable Position pos, @Nullable BoardVector vector) {
@@ -270,7 +274,7 @@ public class Board {
 
         for (BoardVector vector : vectors) {
             Set<Position> line = new HashSet<>(Set.of(pos));
-            for (int sign = -1; sign <= 1; sign += 2) {
+            for (int sign : new int[]{-1, 1}) {
                 for (int i = 1; i < 5; i++) {
                     Position target = pos.offset(vector.multiply(sign * i));
                     if (isSameToken(target, pos)) {
@@ -402,17 +406,9 @@ public class Board {
     @Contract(value = "null -> false", pure = true)
     public boolean equals(@Nullable Object obj) {
         if (obj instanceof Board b) {
-            if (b.boardSize != this.boardSize) {
-                return false;
+            if (b.boardSize == this.boardSize) {
+                return Objects.deepEquals(b.space, this.space);
             }
-            for (int y = 0; y < boardSize; y++) {
-                for (int x = 0; x < boardSize; x++) {
-                    if (!Objects.equals(b.space[y][x], this.space[y][x])) {
-                        return false;
-                    }
-                }
-            }
-            return true;
         }
         return false;
     }
