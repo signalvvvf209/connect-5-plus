@@ -40,7 +40,7 @@ public class Board {
      * @param board 複製元のボード
      */
     @Contract(pure = true)
-    public Board(Board board) {
+    private Board(Board board) {
         this(board.boardSize);
         this.tokenCount = board.tokenCount;
         for (int y = 0; y < boardSize; y++) {
