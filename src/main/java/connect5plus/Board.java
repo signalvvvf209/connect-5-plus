@@ -44,11 +44,7 @@ public class Board {
         this(board.boardSize);
         this.tokenCount = board.tokenCount;
         for (int y = 0; y < boardSize; y++) {
-            for (int x = 0; x < boardSize; x++) {
-                if (board.space[y][x] != null) {
-                    this.space[y][x] = board.space[y][x];
-                }
-            }
+            this.space[y] = board.space[y].clone();
         }
     }
 
